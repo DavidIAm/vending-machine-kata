@@ -23,17 +23,26 @@ sub chop_in {
   my ($self, $diameter) = @_;
   return $self->bin_drop if $self->choppers->[$diameter] > $self->stackmax;
   $self->choppers->[$diameter] += 1;
+  $self->click($diameter);
   return $self;
 }
 
 sub chop_out {
   my ($self, $diameter) = @_;
   return $self->no_change if $self->choppers->[$diameter] <= 0;
+  $self->whir($diameter);
   $self->choppers->[$diameter] -= 1;
 }
 
 sub refund {
   my ($self) = @_;
+}
+
+sub whir {
+  warn "whir a coin is chopped out\n";
+}
+sub click {
+  warn "click a coin in the chopper\n";
 }
 
 1;

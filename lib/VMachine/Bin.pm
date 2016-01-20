@@ -20,7 +20,7 @@ sub bin_drop {
 }
 
 sub clank {
-  warn "clank a coin in the bin";
+  warn "clank a coin in the bin\n";
 }
 
 1;

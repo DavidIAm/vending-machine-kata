@@ -2,6 +2,7 @@ package VMachine::Test;
 
 use base qw/Test::Class/;
 use Test::Most;
+use Test::Output;
 
 use VMachine;
 
@@ -40,7 +41,7 @@ sub startup : Test(startup) {
 sub shutdown : Test(shutdown) {
 }
 
-sub test_coin : Test(8) {
+sub test_coin : Test(15) {
   my $self = shift;
   # As a vendor
   # I want a vending machine that accepts coins
@@ -49,13 +50,27 @@ sub test_coin : Test(8) {
   is $self->{machine}->read_display(), 'INSERT COIN', "display shows INSERT COIN";
 
   # The vending machine will accept nickels dimes and quarter and reject others
-  ok $self->{machine}->coin_in( 1, 35, 0 );
-  ok ! $self->{machine}->coin_in( 1, 30, 0 ), 'reject light dime';
-  ok ! $self->{machine}->coin_in( 1, 40, 1 ), 'reject ferrous dime';
-  ok $self->{machine}->coin_in( 2, 35, 0 ), 'nickel';
-  ok $self->{machine}->coin_in( 3, 35, 0 ), 'quarter';
-  ok !$self->{machine}->coin_in( 4, 35, 0 ), 'fifty cent';
-  ok !$self->{machine}->coin_in( 5, 35, 0 ), 'dollar';
+  stderr_is {
+  ok $self->{machine}->coin_in( 1, 28, 0 );
+} qq/click a coin in the chopper\n/;
+  stderr_is {
+  ok ! $self->{machine}->coin_in( 1, 20, 0 ), 'reject light dime';
+} qq/clink a coin in the return\n/;
+  stderr_is {
+  ok ! $self->{machine}->coin_in( 1, 25, 1 ), 'reject ferrous dime';
+} qq/clink a coin in the return\n/;
+  stderr_is {
+  ok $self->{machine}->coin_in( 3, 35, 0 ), 'nickel';
+} qq/click a coin in the chopper\n/;
+  stderr_is {
+  ok $self->{machine}->coin_in( 4, 75, 0 ), 'quarter';
+} qq/click a coin in the chopper\n/;
+  stderr_is {
+  ok !$self->{machine}->coin_in( 5, 150, 0 ), 'reject fifty cent';
+} qq/clink a coin in the return\n/;
+  stderr_is {
+  ok !$self->{machine}->coin_in( 6, 110, 0 ), 'reject dollar';
+} qq/clink a coin in the return\n/;
 }
 
 sub setup : Test(setup) {

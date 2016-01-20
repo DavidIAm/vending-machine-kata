@@ -10,7 +10,7 @@ has display_text => (
 
 sub set_display {
   my ($self, $new) = @_;
-  $self->display_text(@_);
+  $self->display_text($new);
   return $self->display_text();
 }
 

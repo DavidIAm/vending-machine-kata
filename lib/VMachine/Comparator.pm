@@ -8,13 +8,13 @@ with 'VMachine::Return';
 sub coin_in {
   my ($self, $diameter, $magflux, $ferrous) = @_;
   foreach (values %{$self->comparatorConfig}) {
+    last if $ferrous;
     next if $diameter != $_->{diameter};
     next if $magflux < $_->{flux} - $_->{tolerance};
     next if $magflux > $_->{flux} + $_->{tolerance};
-    next if $ferrous;
     $self->coin_accepted($_->{pulse});
-    $self->stack_in($diameter);
-    return;
+    $self->chop_in($diameter);
+    return 1;
   }
   return $self->return_drop($diameter);
 }
