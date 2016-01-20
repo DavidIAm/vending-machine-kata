@@ -1,0 +1,5 @@
+Build.PL
+lib/VMachine.pm
+MANIFEST			This list of files
+README.md
+t/01-accept-coins.t
