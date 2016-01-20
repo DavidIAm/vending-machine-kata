@@ -1,6 +1,9 @@
-package Coin::Test;
+package VMachine::Test;
 
 use base qw/Test::Class/;
+use Test::Most;
+
+use VMachine;
 
 my $comparatorData = {
       nickel => { 
@@ -23,7 +26,7 @@ my $comparatorData = {
 sub startup : Test(startup) {
   my $self = shift;
   # we have a coin return
-  my $self->{machine} = VMachine->new(
+  $self->{machine} = VMachine->new(
     comparatorConfig => $comparatorData,
   );
 }
@@ -31,7 +34,7 @@ sub startup : Test(startup) {
 sub shutdown : Test(shutdown) {
 }
 
-sub test_coin : Test {
+sub test_coin : Test(1) {
   my $self = shift;
   # As a vendor
   # I want a vending machine that accepts coins
@@ -44,7 +47,9 @@ sub setup : Test(setup) {
 }
 
 sub teardown : Test(teardown) {
+  my $self = shift;
   undef $self->{machine};
 }
 
 
+__PACKAGE__->runtests();
