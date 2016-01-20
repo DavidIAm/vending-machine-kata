@@ -4,7 +4,7 @@ my $build = Module::Build->new
   module_name => 'VMachine',
   license => 'perl',
   dist_author => 'DAVIDIAM <davidihnen@gmail.com>',
-  dist_abstract => 'lib/VMAchine.pm',
+  dist_abstract => 'lib/VMachine.pm',
   requires => {
   },
   build_requires => {
