@@ -7,14 +7,17 @@ use Test::Output;
 use VMachine;
 
 my $productData = {
-  one => { name => 'Cola',
-      cost => 100,
+    one => {
+        name => 'Cola',
+        cost => 100,
     },
-    two => { name => 'chips',
-      cost => 50,
+    two => {
+        name => 'chips',
+        cost => 50,
     },
-    three => { name => 'candy',
-      cost => 65,
+    three => {
+        name => 'candy',
+        cost => 65,
     },
 };
 my $comparatorData = {
@@ -42,21 +45,45 @@ my $comparatorData = {
 };
 
 sub startup : Test(startup) {
+}
+
+sub setup : Test(setup) {
     my $self = shift;
 
     # we have a coin return
-    $self->{machine} = VMachine->new( comparatorConfig => $comparatorData, productConfig => $productData );
+    $self->{machine} = VMachine->new(
+        comparatorConfig => $comparatorData,
+        productConfig    => $productData,
+    );
 }
 
 sub shutdown : Test(shutdown) {
 }
 
-sub select_product {
-  my ($self) = @_;
-  # When a respective button is pressed AND enough money is inserted, product
-  # is dispensed and machine says THANK YOU && resets display
+sub select_product_smooth : Test(8) {
+    my $self = shift;
 
-  # If there is not sufficient inserted the mahine displays PRICE and the price
+    # When a respective button is pressed AND enough money is inserted, product
+    # is dispensed and machine says THANK YOU && resets display
+    is $self->{machine}->read_display(), 'INSERT COINS', 'empty state';
+    stderr_is {
+        $self->{machine}->coin_in( 4, 75, 0 );
+    }
+    qq/click a coin in the chopper\n/;
+    is $self->{machine}->read_display(), '0.25', 'add a quarter one';
+    stderr_is {
+        $self->{machine}->coin_in( 4, 75, 0 );
+    }
+    qq/click a coin in the chopper\n/;
+    is $self->{machine}->read_display(), '0.50', 'add a quarter two';
+    stderr_is {
+        $self->{machine}->button_press('two');
+    }
+    qq/THUNK a product is delivered\n/;
+    is $self->{machine}->read_display(), 'THANK YOU';
+    is $self->{machine}->read_display(), 'INSERT COINS';
+
+  # If there is not sufficient inserted the machine displays PRICE and the price
   # of the item
 }
 
@@ -67,10 +94,10 @@ sub accept_coin : Test(22) {
     # I want a vending machine that accepts coins
     # So that I can collect money from the customer
 
-    is $self->{machine}->read_display(), 'INSERT COIN',
-      "display shows INSERT COIN";
+    is $self->{machine}->read_display(), 'INSERT COINS',
+      "display shows INSERT COINS";
 
-    # The vending machine will accept nickels dimes and quarter and reject others
+   # The vending machine will accept nickels dimes and quarter and reject others
     stderr_is {
         ok $self->{machine}->coin_in( 1, 28, 0 );
     }
@@ -90,27 +117,24 @@ sub accept_coin : Test(22) {
         ok $self->{machine}->coin_in( 3, 35, 0 ), 'nickel';
     }
     qq/click a coin in the chopper\n/;
-    is $self->{machine}->read_display(), '0.15','add a nickel';
+    is $self->{machine}->read_display(), '0.15', 'add a nickel';
     stderr_is {
         ok $self->{machine}->coin_in( 4, 75, 0 ), 'quarter';
     }
     qq/click a coin in the chopper\n/;
-    is $self->{machine}->read_display(), '0.40','add a quarter';
+    is $self->{machine}->read_display(), '0.40', 'add a quarter';
     stderr_is {
         ok !$self->{machine}->coin_in( 5, 150, 0 ), 'reject fifty cent';
     }
     qq/clink a coin in the return\n/;
-    is $self->{machine}->read_display(), '0.40','reject, no fitty';
+    is $self->{machine}->read_display(), '0.40', 'reject, no fitty';
     stderr_is {
         ok !$self->{machine}->coin_in( 6, 110, 0 ), 'reject dollar';
     }
     qq/clink a coin in the return\n/;
-    is $self->{machine}->read_display(), '0.40','reject, no dollar';
+    is $self->{machine}->read_display(), '0.40', 'reject, no dollar';
+
     # not comprehansive bug okay.
-}
-
-
-sub setup : Test(setup) {
 }
 
 sub teardown : Test(teardown) {

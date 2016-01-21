@@ -7,6 +7,8 @@ requires 'comparatorConfig';
 has current_count => (
     is      => 'rw',
     isa     => 'Num',
+    clearer => 'clear_count',
+    trigger => \&fixtrigger,
     default => 0,
 );
 
@@ -21,13 +23,22 @@ sub coin_accepted {
 sub add_value {
     my ( $self, $value ) = @_;
     $self->current_count( $self->current_count + $value );
-    $self->set_display( sprintf '%0.2f', $self->current_count / 100 );
-    return $self;
 }
 
 sub purchase {
     my ( $self, $value ) = @_;
+    if ($value >= $self->current_count) {
+      $self->current_count($self->current_count - $value);
+      return 1;
+    }
+    return 0;
+}
 
+sub fixtrigger {
+  my ($self, $value) = @_;
+  $self->set_display( sprintf '%0.2f', $value / 100 );
+  $self->set_display($self->DEFAULT_DISPLAY) if $value <= 0;
+  return $value;
 }
 
 1;
