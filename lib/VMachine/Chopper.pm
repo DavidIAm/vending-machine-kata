@@ -29,13 +29,38 @@ sub chop_in {
 
 sub chop_out {
     my ( $self, $diameter ) = @_;
-    return $self->no_change if $self->choppers->[$diameter] <= 0;
-    $self->whir($diameter);
-    $self->choppers->[$diameter] -= 1;
+    do { die "no change available for diameter $diameter"; $self->no_change;} if $self->choppers->[$diameter] <= 0;
+    # take the comparator values select the proper diameter and use its value
+    if (
+        $self->remove_value(
+            map    { $_->{value} }
+              grep { $_->{diameter} eq $diameter }
+              values %{ $self->comparatorConfig }
+        )
+      )
+    {
+        $self->whir($diameter);
+        $self->choppers->[$diameter] -= 1;
+        $self->return_drop($diameter);
+    }
+}
+
+sub has_coins {
+  my ($self, $diameter)  = @_;
+  return 1;
+}
+sub largest_coin_diameter {
+    my ( $self, $value ) = @_;
+    my ($coin) = sort { $b->{value} <=> $a->{value} } grep { $self->has_coins($_->{diameter}) && $_->{value} <= $value  } values %{$self->comparatorConfig};
+    return $coin->{diameter};
 }
 
 sub refund {
     my ($self) = @_;
+    my $max = 10; # how many times we loop max
+    while ($self->current_count > 0 && $max--) {
+      $self->chop_out($self->largest_coin_diameter($self->current_count));
+    }
 }
 
 sub whir {

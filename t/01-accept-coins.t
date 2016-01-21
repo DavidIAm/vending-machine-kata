@@ -3,6 +3,7 @@ package VMachine::Test;
 use base qw/Test::Class/;
 use Test::Most;
 use Test::Output;
+use List::Util qw/sum/;
 
 use VMachine;
 
@@ -60,6 +61,45 @@ sub setup : Test(setup) {
 sub shutdown : Test(shutdown) {
 }
 
+sub z_make_change : Test(8) {
+    my ($self) = @_;
+
+    is $self->{machine}->read_display(), 'INSERT COINS', 'empty state';
+    stderr_is {
+        $self->{machine}->coin_in( 4, 75, 0 );
+    }
+    qq/click a coin in the chopper\n/;
+    stderr_is {
+        $self->{machine}->coin_in( 4, 75, 0 );
+    }
+    qq/click a coin in the chopper\n/;
+    stderr_is {
+        $self->{machine}->coin_in( 4, 75, 0 );
+    }
+    qq/click a coin in the chopper\n/;
+    stderr_is {
+        $self->{machine}->coin_in( 3, 40, 0 );
+    }
+    qq/click a coin in the chopper\n/;
+    stderr_is {
+        $self->{machine}->button_press('three');
+    }
+    qq/THUNK a product is delivered\n/
+      . qq/whir a coin is chopped out\n/
+      . qq/clink a coin in the return\n/
+      . qq/whir a coin is chopped out\n/
+      . qq/clink a coin in the return\n/;
+    my $dia_to_value = {
+        map {
+            $self->{machine}->comparatorConfig->{$_}->{diameter} =>
+              $self->{machine}->comparatorConfig->{$_}{value}
+        } keys %{ $self->{machine}->comparatorConfig }
+    };
+    my $total = sum map { $dia_to_value->{$_} } @{ $self->{machine}->seen };
+    is $total, 15;
+
+}
+
 sub select_product_smooth : Test(8) {
     my $self = shift;
 
@@ -83,9 +123,9 @@ sub select_product_smooth : Test(8) {
     is $self->{machine}->read_display(), 'THANK YOU';
     is $self->{machine}->read_display(), 'INSERT COINS';
 
-  }
+}
 
-sub z_select_product_novalue : Test(9) {
+sub select_product_novalue : Test(9) {
     my ($self) = @_;
 
     # If there is not any value in the machine displays PRICE and the price
@@ -109,8 +149,8 @@ sub z_select_product_novalue : Test(9) {
         $self->{machine}->button_press('two');
     }
     q//;
-    is $self->{machine}->read_display(), 'PRICE 0.50',   'price message';
-    is $self->{machine}->read_display(), '0.25', 'add a quarter one';
+    is $self->{machine}->read_display(), 'PRICE 0.50', 'price message';
+    is $self->{machine}->read_display(), '0.25',       'add a quarter one';
 }
 
 sub accept_coin : Test(22) {

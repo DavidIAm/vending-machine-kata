@@ -20,6 +20,15 @@ sub coin_accepted {
     return $self;
 }
 
+sub remove_value {
+    my ( $self, $value ) = @_;
+    if ($self->current_count >= $value) {
+      $self->add_value( $value * -1);
+      return 1;
+    }
+    return 0;
+}
+
 sub add_value {
     my ( $self, $value ) = @_;
     $self->current_count( $self->current_count + $value );

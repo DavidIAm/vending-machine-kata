@@ -5,13 +5,8 @@ use Moose::Role;
 has seen => (
     is      => 'ro',
     isa     => 'ArrayRef',
-    builder => 'build_seen',
+    default => sub { [] },
 );
-
-sub build_seen {
-    my ($self) = @_;
-    return [];
-}
 
 sub return_drop {
     my ( $self, $diameter ) = @_;
