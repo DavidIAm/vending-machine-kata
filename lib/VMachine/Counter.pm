@@ -27,7 +27,7 @@ sub add_value {
 
 sub purchase {
     my ( $self, $value ) = @_;
-    if ($value >= $self->current_count) {
+    if ($value <= $self->current_count) {
       $self->current_count($self->current_count - $value);
       return 1;
     }

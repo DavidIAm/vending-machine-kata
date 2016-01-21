@@ -83,8 +83,34 @@ sub select_product_smooth : Test(8) {
     is $self->{machine}->read_display(), 'THANK YOU';
     is $self->{machine}->read_display(), 'INSERT COINS';
 
-  # If there is not sufficient inserted the machine displays PRICE and the price
-  # of the item
+  }
+
+sub z_select_product_novalue : Test(9) {
+    my ($self) = @_;
+
+    # If there is not any value in the machine displays PRICE and the price
+    # of the item, then goes back to INSERT COINS
+    is $self->{machine}->read_display(), 'INSERT COINS', 'empty state';
+    stderr_is {
+        $self->{machine}->button_press('two');
+    }
+    q//;
+    is $self->{machine}->read_display(), 'PRICE 0.50',   'price message';
+    is $self->{machine}->read_display(), 'INSERT COINS', 'empty state';
+
+    # If there is money but not enough, it displays price, then goes back to
+    # amoutn
+    stderr_is {
+        $self->{machine}->coin_in( 4, 75, 0 );
+    }
+    qq/click a coin in the chopper\n/;
+    is $self->{machine}->read_display(), '0.25', 'add a quarter one';
+    stderr_is {
+        $self->{machine}->button_press('two');
+    }
+    q//;
+    is $self->{machine}->read_display(), 'PRICE 0.50',   'price message';
+    is $self->{machine}->read_display(), '0.25', 'add a quarter one';
 }
 
 sub accept_coin : Test(22) {
