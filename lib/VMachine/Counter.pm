@@ -21,7 +21,7 @@ sub coin_accepted {
 sub add_value {
     my ( $self, $value ) = @_;
     $self->current_count( $self->current_count + $value );
-    $self->set_display( $self->current_count );
+    $self->set_display( sprintf '%0.2f', $self->current_count / 100 );
     return $self;
 }
 
