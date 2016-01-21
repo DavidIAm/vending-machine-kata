@@ -2,11 +2,7 @@ package VMachine::Return;
 
 use Moose::Role;
 
-has seen => (
-    is      => 'ro',
-    isa     => 'ArrayRef',
-    default => sub { [] },
-);
+has seen => ( is => 'ro', isa => 'ArrayRef', default => sub { [] }, );
 
 sub return_drop {
     my ( $self, $diameter ) = @_;

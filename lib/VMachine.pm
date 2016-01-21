@@ -3,16 +3,8 @@ package VMachine;
 use Moose;
 our $VERSION = '0.01';
 
-has productConfig => (
-    is       => 'ro',
-    isa      => 'HashRef',
-    required => 1,
-);
-has comparatorConfig => (
-    is       => 'ro',
-    isa      => 'HashRef',
-    required => 1,
-);
+has productConfig    => ( is => 'ro', isa => 'HashRef', required => 1, );
+has comparatorConfig => ( is => 'ro', isa => 'HashRef', required => 1, );
 
 with 'VMachine::Display';
 with 'VMachine::Comparator';

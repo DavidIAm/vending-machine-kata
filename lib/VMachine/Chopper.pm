@@ -3,18 +3,10 @@ package VMachine::Chopper;
 use Moose::Role;
 with 'VMachine::Bin';
 
-has stackmax => (
-    is      => 'ro',
-    isa     => 'Num',
-    default => '50',
-);
+has stackmax => ( is => 'ro', isa => 'Num', default => '50', );
 
-has choppers => (
-    is      => 'rw',
-    isa     => 'HashRef',
-    builder => 'build_choppers',
-    lazy => 1,
-);
+has choppers =>
+    ( is => 'rw', isa => 'HashRef', builder => 'build_choppers', lazy => 1, );
 
 sub build_choppers {
     my ($self) = @_;
@@ -32,16 +24,15 @@ sub chop_in {
 sub chop_out {
     my ( $self, $diameter ) = @_;
     do { die "no change available for diameter $diameter"; $self->no_change; }
-      if $self->choppers->{$diameter} <= 0;
+        if $self->choppers->{$diameter} <= 0;
 
     # take the comparator values select the proper diameter and use its value
-    if (
-        $self->remove_value(
-            map    { $_->{value} }
-              grep { $_->{diameter} eq $diameter }
-              values %{ $self->comparatorConfig }
+    if ($self->remove_value(
+            map      { $_->{value} }
+                grep { $_->{diameter} eq $diameter }
+                values %{ $self->comparatorConfig }
         )
-      )
+        )
     {
         $self->whir($diameter);
         $self->choppers->{$diameter} -= 1;
@@ -56,10 +47,10 @@ sub has_coins {
 
 sub largest_coin_diameter {
     my ( $self, $value ) = @_;
-    my ($coin) =
-      sort { $b->{value} <=> $a->{value} }
-      grep { $self->has_coins( $_->{diameter} ) && $_->{value} <= $value }
-      values %{ $self->comparatorConfig };
+    my ($coin)
+        = sort { $b->{value} <=> $a->{value} }
+        grep { $self->has_coins( $_->{diameter} ) && $_->{value} <= $value }
+        values %{ $self->comparatorConfig };
     return $coin->{diameter};
 }
 
@@ -67,7 +58,8 @@ sub refund {
     my ($self) = @_;
     my $max = 10;    # how many times we loop max
     while ( $self->current_count > 0 && $max-- ) {
-        $self->chop_out( $self->largest_coin_diameter( $self->current_count ) );
+        $self->chop_out(
+            $self->largest_coin_diameter( $self->current_count ) );
     }
 }
 

@@ -2,11 +2,7 @@ package VMachine::Bin;
 
 use Moose::Role;
 
-has bincontents => (
-    is      => 'ro',
-    isa     => 'ArrayRef',
-    builder => 'build_bin',
-);
+has bincontents => ( is => 'ro', isa => 'ArrayRef', builder => 'build_bin', );
 
 sub build_bin {
     my ($self) = @_;

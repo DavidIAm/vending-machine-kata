@@ -2,16 +2,9 @@ package VMachine::Display;
 
 use Moose::Role;
 
-has message_queue => (
-    is      => 'ro',
-    isa     => 'ArrayRef',
-    builder => 'build_queue',
-);
-has display_text => (
-    is      => 'rw',
-    isa     => 'Str',
-    clearer => 'clear_display',
-);
+has message_queue =>
+    ( is => 'ro', isa => 'ArrayRef', builder => 'build_queue', );
+has display_text => ( is => 'rw', isa => 'Str', clearer => 'clear_display', );
 
 sub set_display {
     my ( $self, $new ) = @_;
@@ -25,7 +18,7 @@ sub read_display {
         return $self->message_get();
     }
     return $self->display_text() if $self->display_text();
-    return 'INSERT COINS' if grep { $_ > 0 } values %{$self->choppers};
+    return 'INSERT COINS' if grep { $_ > 0 } values %{ $self->choppers };
     return 'EXACT CHANGE ONLY';
 }
 
