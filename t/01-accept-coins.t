@@ -61,7 +61,47 @@ sub setup : Test(setup) {
 sub shutdown : Test(shutdown) {
 }
 
-sub z_return_coins : Test(7) {
+use Test::MockObject::Extends;
+
+sub z_exact_change : Test(2) {
+    my ($self) = @_;
+    is $self->{machine}->read_display(), 'INSERT COINS', 'empty state';
+    $self->{machine}->choppers({}); # internal hack - just clear the chopper
+    is $self->{machine}->read_display(), 'EXACT CHANGE ONLY', 'empty cutter state';
+}
+
+sub sold_out : Test(10) {
+    my ($self) = @_;
+    is $self->{machine}->read_display(), 'INSERT COINS', 'empty state';
+    stderr_is {
+        $self->{machine}->coin_in( 4, 85, 0 );
+    }
+    qq/click a coin in the chopper\n/;
+    stderr_is {
+        $self->{machine}->coin_in( 4, 85, 0 );
+    }
+    qq/click a coin in the chopper\n/;
+    stderr_is {
+        $self->{machine}->button_press('two');
+    }
+    qq/THUNK a product is delivered\n/;
+    is $self->{machine}->read_display, 'THANK YOU', 'shows thanks';
+    stderr_is {
+        $self->{machine}->coin_in( 4, 75, 0 );
+    }
+    qq/click a coin in the chopper\n/;
+    stderr_is {
+        $self->{machine}->coin_in( 4, 75, 0 );
+    }
+    qq/click a coin in the chopper\n/;
+    stderr_is {
+        $self->{machine}->button_press('two');
+    } qq//, 'button press quiet';
+    is $self->{machine}->read_display, 'SOLD OUT', 'shows sold out';
+    is $self->{machine}->read_display, '0.50', 'shows money';
+}
+
+sub return_coins : Test(7) {
     my ($self) = @_;
     is $self->{machine}->read_display(), 'INSERT COINS', 'empty state';
     stderr_is {
@@ -95,7 +135,7 @@ sub z_return_coins : Test(7) {
 
 }
 
-sub make_change : Test(8) {
+sub make_change : Test(7) {
     my ($self) = @_;
 
     # When you buy something it returns the proper amount back

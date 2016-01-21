@@ -10,11 +10,8 @@ has message_queue => (
 has display_text => (
     is      => 'rw',
     isa     => 'Str',
-    default => sub { shift->DEFAULT_DISPLAY },
     clearer => 'clear_display',
 );
-
-sub DEFAULT_DISPLAY { 'INSERT COINS' }
 
 sub set_display {
     my ( $self, $new ) = @_;
@@ -27,7 +24,9 @@ sub read_display {
     if ( $self->has_entries ) {
         return $self->message_get();
     }
-    return $self->display_text();
+    return $self->display_text() if $self->display_text();
+    return 'INSERT COINS' if grep { $_ > 0 } values %{$self->choppers};
+    return 'EXACT CHANGE ONLY';
 }
 
 sub message_get {

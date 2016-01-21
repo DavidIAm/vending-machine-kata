@@ -40,13 +40,14 @@ sub purchase {
       $self->current_count($self->current_count - $value);
       return 1;
     }
+    $self->message( 'PRICE ' . sprintf '%0.2f', $value / 100 );
     return 0;
 }
 
 sub fixtrigger {
   my ($self, $value) = @_;
   $self->set_display( sprintf '%0.2f', $value / 100 );
-  $self->set_display($self->DEFAULT_DISPLAY) if $value <= 0;
+  $self->clear_display if $value <= 0;
   return $value;
 }
 
