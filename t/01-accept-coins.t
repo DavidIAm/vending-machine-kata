@@ -61,9 +61,44 @@ sub setup : Test(setup) {
 sub shutdown : Test(shutdown) {
 }
 
-sub z_make_change : Test(8) {
+sub z_return_coins : Test(7) {
+    my ($self) = @_;
+    is $self->{machine}->read_display(), 'INSERT COINS', 'empty state';
+    stderr_is {
+        $self->{machine}->coin_in( 3, 40, 0 );
+    }
+    qq/click a coin in the chopper\n/;
+    stderr_is {
+        $self->{machine}->coin_in( 3, 40, 0 );
+    }
+    qq/click a coin in the chopper\n/;
+    stderr_is {
+        $self->{machine}->coin_in( 3, 40, 0 );
+    }
+    qq/click a coin in the chopper\n/;
+    stderr_is {
+      $self->{machine}->refund_pull();
+    }
+      qq/whir a coin is chopped out\n/
+      . qq/clink a coin in the return\n/
+      . qq/whir a coin is chopped out\n/
+      . qq/clink a coin in the return\n/;
+    my $dia_to_value = {
+        map {
+            $self->{machine}->comparatorConfig->{$_}->{diameter} =>
+              $self->{machine}->comparatorConfig->{$_}{value}
+        } keys %{ $self->{machine}->comparatorConfig }
+    };
+    my $total = sum map { $dia_to_value->{$_} } @{ $self->{machine}->seen };
+    is $total, 15;
+    is $self->{machine}->read_display(), 'INSERT COINS', 'empty state';
+
+}
+
+sub make_change : Test(8) {
     my ($self) = @_;
 
+    # When you buy something it returns the proper amount back
     is $self->{machine}->read_display(), 'INSERT COINS', 'empty state';
     stderr_is {
         $self->{machine}->coin_in( 4, 75, 0 );
